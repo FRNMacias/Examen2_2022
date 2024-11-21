@@ -167,6 +167,88 @@
      </rect>
     </property>
    </widget>
+   <widget class="QLabel" name="entregada_2">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>620</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Energia generada</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="Color_red_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>430</x>
+      <y>620</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 0, 0);</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="Color_blue_2" native="true">
+    <property name="geometry">
+     <rect>
+      <x>150</x>
+      <y>620</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(0, 0, 255);</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="consumida_2">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>620</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Energia consumida</string>
+    </property>
+   </widget>
+   <widget class="QWidget" name="Color_red_3" native="true">
+    <property name="geometry">
+     <rect>
+      <x>710</x>
+      <y>620</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 0, 255);
+</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="consumida_3">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>620</y>
+      <width>131</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Energia neta</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

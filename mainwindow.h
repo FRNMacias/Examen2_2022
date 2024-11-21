@@ -34,10 +34,11 @@ private:
 public slots:
 
 public:
-    void setupCustomPlot();
+    void setupCustomPlot(QWidget &view);
     void plotter(QVector<double> &x, QVector<double> &y, QWidget &view, const QColor &color);
     void showData(struct data *data);
     void llenar(struct data &v, FILE *f); //retorna el tamaño de cada vector
+    void comparacion_area();
 private:
     mu::Parser parser;
     struct data pv_power, utn_power;
@@ -45,6 +46,9 @@ private:
     void Analisis();
     double calculate_media(struct data *data);
     double calculate_area_t(struct data *data, int a);
+    double calculate_area_r(struct data *data, int a);
     void Energy();
+    void Guardar_energy();
+    void Energy_neta();
 };
 #endif // MAINWINDOW_H

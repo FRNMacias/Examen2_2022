@@ -10,23 +10,31 @@ MainWindow::MainWindow(QWidget *parent)
 
     CargarGraficar();
     Analisis();
+    //comparacion_area();
     Energy();
+    Guardar_energy();
+    Energy_neta();
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
-void MainWindow::setupCustomPlot() {
+void MainWindow::setupCustomPlot(QWidget &view) {
+    QCustomPlot *customPlot = qobject_cast<QCustomPlot*>(&view);
+    if(!customPlot){
+        qDebug() << "Error: El Widget pasado no es un QCustomPlot";
+        return ;
+    }
     // Configurar interacciones
-    ui->plot2->setInteraction(QCP::iRangeDrag, true);  // Permitir arrastrar
-    ui->plot2->setInteraction(QCP::iRangeZoom, true);  // Permitir zoom
+    customPlot->setInteraction(QCP::iRangeDrag, true);  // Permitir arrastrar
+    customPlot->setInteraction(QCP::iRangeZoom, true);  // Permitir zoom
     //ui->plot2->axisRect()->setRangeDrag(Qt::Horizontal | Qt::Vertical);  // Drag en ambos ejes
    // ui->plot2->axisRect()->setRangeZoom(Qt::Horizontal | Qt::Vertical);  // Zoom en ambos ejes
-    ui->plot2->axisRect()->setRangeDrag(Qt::Horizontal);
-    ui->plot2->axisRect()->setRangeZoom(Qt::Horizontal);
+    customPlot->axisRect()->setRangeDrag(Qt::Horizontal);
+    customPlot->axisRect()->setRangeZoom(Qt::Horizontal);
     // Configurar el factor de zoom (opcional)
-    ui->plot2->axisRect()->setRangeZoomFactor(1.2);  // Zoom más rápido
+    customPlot->axisRect()->setRangeZoomFactor(1.2);  // Zoom más rápido
 }
 void MainWindow::plotter(QVector<double> &x, QVector<double> &y,QWidget &view, const QColor &color){
     //verifico si esta ventana pertenece a CustomPlot
@@ -77,6 +85,7 @@ void MainWindow::CargarGraficar(){
         llenar(utn_power,f);
         plotter(utn_power.time,utn_power.power, *ui->plot, QColor(Qt::blue));
     }
+    setupCustomPlot(*ui->plot);
 }
 void MainWindow::Analisis(){
     double max, min, media;
@@ -123,9 +132,20 @@ double MainWindow::calculate_media(struct data *data){
     return media;
 }
 double MainWindow::calculate_area_t(struct data *data, int a){
-    double area;
-    area += ((data->time[a+1] -  data->time[a])*(data->power[a+1] + data->power[a]));
-    return area;
+    return ((data->time[a+1] -  data->time[a])*(((data->power[a+1] - data->power[a])/2)+data->power[a]));
+}
+double MainWindow::calculate_area_r(struct data *data, int a){
+    return ((data->time[a+1] - data->time[a])*(data->power[a+1]));
+}
+void MainWindow::comparacion_area(){
+    QVector<double> area_t(30), area_r(30);
+    qDebug() << "comparacion de areas por dos métodos:";
+    qDebug() << "Trapecio  ----------  Rectángulo";
+    for(int i=0; i<30; i++){
+        area_t[i] = calculate_area_t(&pv_power,i);
+        area_r[i] = calculate_area_r(&pv_power,i);
+        qDebug() << area_t[i] << "            " << area_r[i];
+    }
 }
 void MainWindow::Energy(){
     int tam = utn_power.a - 1;
@@ -141,5 +161,45 @@ void MainWindow::Energy(){
         pv_power.energy[i] = (calculate_area_t(&pv_power,i))/3.6e+6;
     }
     plotter(pv_power.time, pv_power.energy,*ui->plot2,QColor(Qt::red));
-    setupCustomPlot();
+    setupCustomPlot(*ui->plot2);
+}
+void MainWindow::Guardar_energy(){
+    FILE *f = fopen("C:\\Users\\macia\\OneDrive\\Documentos\\InformaticaII\\Info 2 Historico de Examenes\\Examen 2 - 2022\\energy.dat","wb");
+    if(f !=NULL){
+        int tam;
+        //formato T1 E1 T2 E2 T3 E3 ... Tn En.
+        if(pv_power.a == utn_power.a){ //si son del mismo tamaño, recorro todo.
+            tam = pv_power.a;
+        }else{
+            if(pv_power.a < utn_power.a)
+                tam = pv_power.a;
+            if(pv_power.a > utn_power.a)
+                tam = utn_power.a;
+        }
+        for(int i=0; i<(tam -1); i++){ //recorro hasta -1 ya que energy tiene un elemento menos
+            double dif = (pv_power.energy[i])-(utn_power.energy[i]);
+            fwrite(&pv_power.time,sizeof(double),1,f);
+            fwrite(&dif,sizeof(double),1,f);
+        }
+        fclose(f);
+    }else{
+        qDebug() << "Error. No es posible abrir el archivo 'Energy' para escritura";
+        return ;
+    }
+}
+void MainWindow::Energy_neta(){
+    int tam;
+    if(pv_power.a == utn_power.a){ //si son del mismo tamaño, recorro todo.
+        tam = pv_power.a - 1;
+    }else{
+        if(pv_power.a < utn_power.a)
+            tam = pv_power.a - 1;
+        if(pv_power.a > utn_power.a)
+            tam = utn_power.a - 1;
+    }
+    QVector<double>energy_neto(tam);
+    for(int i=0; i<tam; i++){
+        energy_neto[i] = utn_power.energy[i] - pv_power.energy[i];
+    }
+    plotter(pv_power.time,energy_neto,*ui->plot2, QColor(Qt::magenta));
 }
