@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QDebug>
 #include "muParser.h"
-#include "qcustomplot.h"
+//#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 struct data{
@@ -39,6 +39,8 @@ public:
     void showData(struct data *data);
     void llenar(struct data &v, FILE *f); //retorna el tamaño de cada vector
     void comparacion_area();
+    int ind_cercano(const QVector<double> &vector, double x);
+    double img_linealizada(const QVector<double> &v_x,const QVector<double> &v_y, double x, int a);
 private:
     mu::Parser parser;
     struct data pv_power, utn_power;

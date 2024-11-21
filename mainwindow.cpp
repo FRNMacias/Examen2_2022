@@ -151,7 +151,7 @@ void MainWindow::Energy(){
     int tam = utn_power.a - 1;
     utn_power.energy.resize(tam);
     for(int i=0; i<tam; i++){
-        utn_power.energy[i] = (calculate_area_t(&utn_power,i))/3.6e+6;
+        utn_power.energy[i] = (calculate_area_t(&utn_power,i))/3600000;
     }
     plotter(utn_power.time, utn_power.energy,*ui->plot2,QColor(Qt::blue));
 
@@ -187,19 +187,36 @@ void MainWindow::Guardar_energy(){
         return ;
     }
 }
-void MainWindow::Energy_neta(){
-    int tam;
-    if(pv_power.a == utn_power.a){ //si son del mismo tamaño, recorro todo.
-        tam = pv_power.a - 1;
-    }else{
-        if(pv_power.a < utn_power.a)
-            tam = pv_power.a - 1;
-        if(pv_power.a > utn_power.a)
-            tam = utn_power.a - 1;
+int MainWindow::ind_cercano(const QVector<double> &vector, double x){
+    int a=0;
+    for(int i=0; i<vector.size(); i++){
+        if(vector[i]<=x){
+            a=i;
+        }
     }
+    return a;
+}
+double MainWindow::img_linealizada(const QVector<double> &v_x,const QVector<double> &v_y, double x, int a){
+    double img = 0;
+    if(v_x[a] < x){
+        img = (((x - v_x[a])*(v_y[a+1] - v_y[a]))/(v_x[a+1] - v_x[a])) + v_y[a];
+    }else if(v_x[a] > x){
+        img = (((x-v_x[a-1])*(v_y[a] - v_y[a-1]))/(v_y[a] - v_y[a-1]))+ + v_y[a-1];
+    }else if(v_x[a] == x){
+        img = v_y[a];
+    }
+    return img;
+}
+void MainWindow::Energy_neta(){
+    int tam = pv_power.a + utn_power.a;
     QVector<double>energy_neto(tam);
+    QVector<double>img_lin(pv_power.a);
+    for(int i=0; i<pv_power.a; i++){
+        int ind = ind_cercano(utn_power.time, pv_power.time[i]);
+        img_lin[i] = img_linealizada(utn_power.time,utn_power.power,pv_power.time[i],ind);
+    }
     for(int i=0; i<tam; i++){
-        energy_neto[i] = utn_power.energy[i] - pv_power.energy[i];
+        energy_neto[i] = img_lin[i] - pv_power.energy[i];
     }
     plotter(pv_power.time,energy_neto,*ui->plot2, QColor(Qt::magenta));
 }
